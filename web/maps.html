@@ -345,6 +345,33 @@
                             </div>
                         </div>
                         <div id='tools-detail-height' class='hidden'>
+                            <div style="padding: 1em; display:flex; flex-direction:column; align-items: center; row-gap: 0.5em;">
+                                <div style="display:flex;align-items:center;column-gap:0.5em;border:1px solid grey;padding:0.5em;min-width:80%;justify-content:center">
+                                    <span>size</span> <input type='range' id='tools-detail-height-size' value='1' min="1" max="50" oninput="updateHeightBrush();"/>
+                                    <span style="min-width:3em;" id="tools-detail-height-size-label">3</span>
+                                </div>
+                                <div style="display:flex; flex-direction:row;">
+                                    <input checked type='radio' name='heightblend' value='brush'/> brush
+                                    <input checked type='radio' name='heightblend' value='pencil'/> pencil
+                                    <input type='radio' name='heightblend' value='smooth'/> smooth
+                                </div>
+                                <div style="display:flex;align-items:center;column-gap:0.5em;border:1px solid grey;padding:0.5em;min-width:80%;justify-content:center">
+                                    <span>step</span> <input type='range' id='tools-detail-height-step' value='1' min="-5" max="5" oninput="updateHeightBrushStep();"/>
+                                    <span style="min-width:3em;" id="tools-detail-height-step-label">1</span>
+                                </div>
+                                <div style="display:flex;align-items:center;column-gap:0.5em;border:1px solid grey;padding:0.5em;min-width:80%;justify-content:center;">
+                                    <span>blend</span>
+                                    <input type='range' id='tools-detail-height-blend' value='100' min="0" max="100" oninput="updateHeightBrushBlend();"/>
+                                    <span style="min-width:4em;" id="tools-detail-height-blend-label">1.0</span>
+                                </div>
+                                <div style="display:flex;align-items:center;column-gap:0.5em;border:1px solid grey;padding:0.5em;min-width:80%;justify-content:center;">
+                                    <span>elevation</span>
+                                    <input type='range' id='tools-detail-height-elevation' value='0' min="-100" max="100" oninput="updateHeightBrushElevation();"/>
+                                    <span style="min-width:4em;" id="tools-detail-height-elevation-label">0</span>
+                                </div>
+                            </div>
+
+                            <!--
                             <div>
                                 Brush Size: 
                                 <input type='number' id='tools-detail-height-size' value='1' min="1" max="25"/>
@@ -364,6 +391,7 @@
                                 Min: <input id='tools-detail-height-min' size=4 />
                                 Max: <input id='tools-detail-height-max' size=4/>
                             </div>
+                            -->
                         </div>
                         <div id='tools-detail-height_pencil' class='hidden'>
                             <div>

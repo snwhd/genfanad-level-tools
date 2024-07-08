@@ -16,6 +16,53 @@ const BLACK = Jimp.rgbaToInt(0,0,0,255);
 
 const COLORS = require('../unique_colors.js').COLORS;
 
+function forEachTile2(mesh, selection, f) {
+    for (let x = selection.minx; x < selection.maxx; x++)
+    for (let y = selection.miny; y < selection.maxy; y++) {
+        f(x,y,mesh[x][y]);
+    }
+}
+
+function smoothArea(mesh, selection, size) {
+    let weights = [
+        1, 2, 1,
+        2, 3, 2,
+        1, 2, 1,
+    ];
+    let neighbors = [
+        [-1, -1], [ 0, -1], [ 1, -1],
+        [-1,  0], [ 0,  0], [ 1,  0],
+        [-1,  1], [ 0,  1], [ 1,  1],
+    ];
+
+    let n = Math.floor(size / 2.0);
+    selection.minx = selection.x - n;
+    selection.maxx = selection.x + n;
+    selection.miny = selection.y - n;
+    selection.maxy = selection.y + n;
+
+    forEachTile2(mesh, selection, (x, y, tile) => {
+        let height = 0.0;
+        let weightsum = 0.0;
+        for (i = 0; i < neighbors.length; i++) {
+            let weight = weights[i];
+            let nx = x + neighbors[i][0];
+            let ny = y + neighbors[i][1];
+            if (nx >= 0 && nx < mesh.length) {
+                if (ny >= 0 && ny < mesh[x].length) {
+                    height += mesh[nx][ny].elevation * weight;
+                    weightsum += weight;
+                }
+            }
+        }
+
+        if (weightsum > 0.5) {
+            let newe = height / weightsum;
+            tile.elevation = newe;
+        }
+    });
+}
+
 function writeImage(workspace, filename, func) {
     let metadata = WORKSPACE.getMetadata(workspace);
     let mesh = WORKSPACE.readMesh(workspace);
@@ -622,31 +669,37 @@ function heightBrush(workspace, body) {
         brush.push(row);
     }*/
 
-    let center_x = body.selection.x;
-    let center_y = body.selection.y;
+    if (body.mode == "smooth") {
+        smoothArea(mesh, body.selection, body.size);
+    } else {
+        let center_x = body.selection.x;
+        let center_y = body.selection.y;
 
-    let n = Math.floor(body.size / 2.0);
-    for (let xd = 0; xd < body.size; xd++)
-    for (let yd = 0; yd < body.size; yd++) {
-        let x = center_x + xd - n;
-        let y = center_y + yd - n;
-        if (!mesh[x] || !mesh[x][y]) continue;
+        let n = Math.floor(body.size / 2.0);
+        for (let xd = 0; xd < body.size; xd++)
+        for (let yd = 0; yd < body.size; yd++) {
+            let x = center_x + xd - n;
+            let y = center_y + yd - n;
+            if (!mesh[x] || !mesh[x][y]) continue;
 
-        let percent = 1.0 - Math.sqrt((x - center_x) * (x - center_x) + (y - center_y) * (y - center_y)) / n;
-        if (percent < 0) continue;
-
-        let change = Number(body.step) * percent;
-
-        let e = Number(mesh[x][y].elevation) + change;
-
-        if (body.max && e > body.max) e = body.max;
-        if (body.min && e < body.min) e = body.min;
-
-        mesh[x][y].elevation = e;
+            switch (body.mode) {
+                case "brush":
+                    // let blend = body.blend;
+                    let blend = 1.0 - Math.sqrt((x - center_x) * (x - center_x) + (y - center_y) * (y - center_y)) / n;
+                    if (blend > 0.0) {
+                        // if (body.max && e > body.max) e = body.max;
+                        // if (body.min && e < body.min) e = body.min;
+                        mesh[x][y].elevation += Number(body.step)*blend;
+                    }
+                    break;
+                case "pencil":
+                    mesh[x][y].elevation = body.elevation;
+                    break;
+            }
+        }
     }
 
     WORKSPACE.writeMesh(workspace, mesh);
-
     return true;
 }
 

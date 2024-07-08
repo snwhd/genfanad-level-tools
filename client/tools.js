@@ -250,8 +250,6 @@ const TOOL_DEFINITIONS = {
                     alpha: loadSelectedAlpha(),
                 }
 
-                console.log(options);
-
                 post('api/tools/mesh/color/pencil/' + WORKSPACES.opened, options, () => {
                     WORKSPACES.reload();
                 });
@@ -267,6 +265,7 @@ const TOOL_DEFINITIONS = {
             // hotkey: 'shift-H',
             init: () => {
                 updateColorBrush();
+                updateColorBrushAlpha();
             },
             on_select: (tile) => {
                 let size = getColorBrushSize();
@@ -278,8 +277,6 @@ const TOOL_DEFINITIONS = {
                     alpha: loadSelectedAlpha(),
                     blend: document.querySelector('input[name="colorblend"]:checked').value,
                 }
-
-                console.log(JSON.stringify(options));
 
                 post('api/tools/mesh/color/brush/' + WORKSPACES.opened, options, () => {
                     WORKSPACES.reload();
@@ -511,22 +508,30 @@ const TOOL_DEFINITIONS = {
             hotkey: 'shift-H',
             init: () => {
                 updateHeightBrush();
+                updateHeightBrushStep();
+                updateHeightBrushBlend();
+                updateHeightBrushElevation();
             },
             on_select: (tile) => {
-                let size = document.getElementById('tools-detail-height-size').value;
-                let step = document.getElementById('tools-detail-height-step').value;
-                let min = document.getElementById('tools-detail-height-min').value;
-                let max = document.getElementById('tools-detail-height-max').value;
+                let size = getHeightBrushSize();
+                let step = getHeightBrushStep();
+                let blend = getHeightBrushStep();
+                let elevation = getHeightBrushElevation();
+                let mode = getHeightBrushMode();
+
+                // let min = -5; // document.getElementById('tools-detail-height-min').value;
+                // let max = 5; // document.getElementById('tools-detail-height-max').value;
+                // if (min) options.min = min;
+                // if (max) options.max = max;
 
                 let options = {
                     selection: tile,
                     size: Number(size),
                     step: Number(step),
+                    blend: Number(blend),
+                    elevation: Number(elevation),
+                    mode: mode,
                 }
-                if (min) options.min = min;
-                if (max) options.max = max;
-
-                console.log(JSON.stringify(options));
 
                 post('api/tools/mesh/height/brush/' + WORKSPACES.opened, options, () => {
                     WORKSPACES.reload();
@@ -1071,11 +1076,53 @@ function batchFloorAction(action) {
     });
 }
 
+function getHeightBrushMode() {
+    return document.querySelector('input[name="heightblend"]:checked').value;
+}
+
+function getHeightBrushSize() {
+    let s = document.getElementById('tools-detail-height-size').value;
+    return parseInt(s);
+}
+
 function updateHeightBrush() {
     if (TOOLS.selected.name != 'Height Brush') return;
 
-    let s = document.getElementById('tools-detail-height-size').value;
+    let s = getHeightBrushSize();
+    document.getElementById('tools-detail-height-size-label').innerText = s;
     SELECTION.cursor.setDimensions(s,s, true);
+}
+
+function getHeightBrushStep() {
+    let s = document.getElementById('tools-detail-height-step').value;
+    return parseInt(s);
+}
+
+function updateHeightBrushStep() {
+    if (TOOLS.selected.name != 'Height Brush') return;
+
+    let s = getHeightBrushStep();
+    document.getElementById('tools-detail-height-step-label').innerText = s;
+}
+
+function getHeightBrushBlend() {
+    let s = document.getElementById('tools-detail-height-blend').value;
+    return parseFloat(s) / 100;
+}
+
+function updateHeightBrushBlend() {
+    let b = getHeightBrushBlend();
+    document.getElementById('tools-detail-height-blend-label').innerText = b;
+}
+
+function getHeightBrushElevation() {
+    let s = document.getElementById('tools-detail-height-elevation').value;
+    return parseInt(s);
+}
+
+function updateHeightBrushElevation() {
+    let b = getHeightBrushElevation();
+    document.getElementById('tools-detail-height-elevation-label').innerText = b;
 }
 
 function clearOption(id) {
