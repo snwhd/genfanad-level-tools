@@ -2,6 +2,7 @@
 import argparse
 import pprint
 import json
+import shutil
 import os
 
 ROOT_DIR = '../GenfanadClient/resources/app/static-files/'
@@ -62,7 +63,8 @@ def copy_model(name, data):
     if not os.path.exists(source_model):
         return
 
-    os.symlink(source_model, modelpath)
+    # os.symlink(source_model, modelpath)
+    shutil.copy2(source_model, modelpath)
 
     defn_path = os.path.join(directory, filename) + '.json'
     json.dump(defn, open(defn_path, 'w'), indent=2)

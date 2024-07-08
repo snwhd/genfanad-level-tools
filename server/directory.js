@@ -54,30 +54,29 @@ function traverseSubdirectory(pathList, metadataList, dir, itemCallback) {
     let newMetadataList = [...metadataList, metadata];
 
     let contents = fs.readdirSync(dir);
-    for (let i in contents) {
-        let ii = contents[i];
-        if (ii == 'metadata.json') continue;
+    for (let index in contents) {
+        let filename = contents[index];
+        if (filename == 'metadata.json') continue;
 
-        let file = dir + "/" + ii;
-        let stats = fs.statSync(file);
-
+        let filepath = dir + "/" + filename;
+        let stats = fs.statSync(filepath);
         if (stats.isDirectory()) {
-            let newPathList = [...pathList, ii];
-            traverseSubdirectory(newPathList, newMetadataList, dir + "/" + ii, itemCallback);
-        } else if (stats.isFile() && file.endsWith('.json')) {
+            let newPathList = [...pathList, filename];
+            traverseSubdirectory(newPathList, newMetadataList, filepath, itemCallback);
+        } else if (stats.isFile() && filename.endsWith('.json')) {
             try {
-                let contents = JSON.parse(fs.readFileSync(file).toString());
+                let contents = JSON.parse(fs.readFileSync(filepath).toString());
                 let value = singleLevelMerge(...newMetadataList, contents);
 
-                let extension = path.extname(file);
-                let base = path.basename(file, extension);
+                let extension = path.extname(filename);
+                let base = path.basename(filename, extension);
 
                 let key = [...pathList, base].join('-');
 
                 if (value.authoritativeKey) key = value.authoritativeKey;
 
                 let metadata = {
-                    filename: file,
+                    filename: filename,
                     short: base,
                     directory: dir,
                     extension: extension,
@@ -91,7 +90,7 @@ function traverseSubdirectory(pathList, metadataList, dir, itemCallback) {
                     throw e;
                 }
             } catch (e) {
-                console.log("Invalid JSON file: " + dir + "/" + ii);
+                console.log("Invalid JSON file: " + filepath);
                 throw e;
             }
         }

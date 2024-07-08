@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import pathlib
 import json
 import os
 
@@ -22,15 +23,15 @@ def preprocess_mesh(mesh):
     # texture2
     for row in mesh:
         for tile in row:
-            if 'walkable' not in tile:
-                tile['walkable'] = tile.get('walkabilityOverriden', True)
-                tile['overall_walkable'] = tile['walkable'] # TODO what is this
-            if 'walkabilityOverriden' in tile:
-                del tile['walkabilityOverriden']
-            if 'minimapColor' not in tile and 'color' in tile:
-                tile['minimapColor'] = tile['color']
-            if 'buildings' in tile and 'level1' in tile['buildings'] and 'roof' in tile['buildings']['level1']:
-                tile['indoor'] = True
+            if "walkable" not in tile:
+                tile["walkable"] = tile.get("walkabilityOverriden", True)
+                tile["overall_walkable"] = tile["walkable"] # TODO what is this
+            if "walkabilityOverriden" in tile:
+                del tile["walkabilityOverriden"]
+            if "minimapColor" not in tile and "color" in tile:
+                tile["minimapColor"] = tile["color"]
+            if "buildings" in tile and "level1" in tile["buildings"] and "roof" in tile["buildings"]["level1"]:
+                tile["indoor"] = True
     return mesh
 
 
@@ -48,7 +49,7 @@ def combine(mesh, objects, unique):
     }
 
 
-def package(w, output):
+def pack_workspace(w, output):
     # items = workspace_json(w, "items")
     # npcs = workspace_json(w, "npcs")
     mesh = workspace_json(w, "mesh")
@@ -58,11 +59,80 @@ def package(w, output):
     json.dump(combined, open(output, "w"), indent=2)
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("workspace", type=str)
-    parser.add_argument("--output", type=str, required=False, default="combined.json")
-    args = parser.parse_args()
+def pack_attached(root, assets, output):
+    raise NotImplementedError();
 
-    package(args.workspace, args.output)
+
+def unpack_attached(filepath, output):
+
+    def write(content, *filepath):
+        path = pathlib.Path(os.path.join(output, *filepath))
+        path.parent.mkdir(parents=True, exist_ok=True)
+        json.dump(content, open(str(path), "w"), indent=2)
+
+    def generic_write(obj, *dir):
+        if obj is not None:
+            for i, (k, v) in enumerate(obj.items()):
+                write(v, *dir, f'{i:004}.json')
+
+    combined = json.load(open(filepath))
+    write(combined["mesh"], "new_mesh", "mesh.json")
+
+    batches = {
+        "trees": [],
+    }
+
+    for i, (k, v) in enumerate(combined["objects"].items()):
+        # TODO: something better here, from workspace.writeObjects
+        if k.startswith("skill-tree"):
+            batches["trees"].append(v)
+        else:
+            category = v["object"].split("-")[0]
+            filename = f'{i:04},{v["object"]}.json'
+            write(v, "objects", category, filename)
+
+    for batch, objects in batches.items():
+        write(dict(enumerate(objects)), "batch_objects", f'{batch}.json')
+
+    generic_write(combined["uniqueObjects"], "unique")
+    generic_write(combined.get("items"), "items")
+    generic_write(combined.get("npcs"), "npcs")
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers()
+
+    p = subparsers.add_parser("pack")
+    p.add_argument("workspace", type=str)
+    p.add_argument("--assets", type=str, default=None)
+    p.add_argument("--output", type=str, required=False, default="combined.json")
+    p.set_defaults(func=cmd_pack)
+
+    p = subparsers.add_parser("unpack")
+    p.add_argument("combined", type=str)
+    p.add_argument("output", type=str)
+    p.set_defaults(func=cmd_unpack)
+
+    args = parser.parse_args()
+    if not hasattr(args, "func"):
+        parser.print_help()
+        exit()
+    return args
+
+
+def cmd_pack(args):
+    if args.assets is None:
+        pack_workspace(args.workspace, args.output)
+    else:
+        pack_attached(args.workspace, args.assets, args.output)
+
+
+def cmd_unpack(args):
+    unpack_attached(args.combined, args.output)
+
+
+if __name__ == "__main__":
+    args = parse_args()
+    args.func(args)
 
