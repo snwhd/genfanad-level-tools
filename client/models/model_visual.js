@@ -4,6 +4,22 @@
 
 const RECENT_MODELS = 15;
 
+function onModelFilterChanged(e) {
+    let term = document.getElementById('model-select-filter').value.toLowerCase();
+    let container = document.getElementById('model-visual-all');
+    for (prv of container.getElementsByClassName('model-preview')) {
+        for (div of prv.getElementsByClassName('model-preview-label')) {
+            if (term == "") {
+                prv.style.display = "block";
+            } else if (div.innerText.toLowerCase().includes(term)) {
+                prv.style.display = "block";
+            } else {
+                prv.style.display = "none";
+            }
+        }
+    }
+}
+
 function setupPreviewCanvas() {
     var s = new THREE.Scene();
     var c = new THREE.PerspectiveCamera( 75, 1.0, 0.1, 1000 );

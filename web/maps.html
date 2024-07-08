@@ -178,6 +178,7 @@
                                 <div>
                                     <input type='button' value='Pencil' class="button-click" onclick='TOOLS.pickTool("color", "pencil", this)'>
                                     <input type='button' value='Brush' class="button-click" onclick='TOOLS.pickTool("color", "brush", this)'>
+                                    <input type='button' value='Pick' class="button-click" onclick='TOOLS.pickTool("color", "picker", this)'>
                                 </div>
                                 <div>
                                     <input type='button' value='Save' class="button-click" onclick='TOOLS.pickTool("color", "save", this)'>
@@ -774,7 +775,10 @@
                         </div>
 
 
-        <div id='model-visual-dialog' class="easyui-dialog" data-options="closed: true" title="Select a Model" style="width:80%; height:80%;">
+        <div id='model-visual-dialog' class="easyui-dialog" data-options="closed: true" title="Select a Model" style="width:80%; height:80%; text-align:center;">
+            <div style="padding: 1em;">
+                <input id="model-select-filter" style="font-size:1.5em;" type="text" placeholder="filter" oninput="onModelFilterChanged();"/>
+            </div>
             <h2>Recent</h2>
             <div id='model-visual-recent'>
 

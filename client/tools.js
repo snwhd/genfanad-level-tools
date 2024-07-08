@@ -237,6 +237,23 @@ const TOOL_DEFINITIONS = {
                 });
             }
         },
+        'picker': {
+            'tool-config': {
+                'tools-detail-color': true,
+            },
+            name: 'Color Picker',
+            select: 'tile',
+            on_select: (tile) => {
+                let options = {
+                    selection: tile,
+                }
+
+                post('api/tools/mesh/color/pick/' + WORKSPACES.opened, options, (color) => {
+                    setSelectedColor(color);
+                    WORKSPACES.reload();
+                });
+            }
+        },
         'pencil': {
             'tool-config': {
                 'tools-detail-color': true,
@@ -518,11 +535,6 @@ const TOOL_DEFINITIONS = {
                 let blend = getHeightBrushStep();
                 let elevation = getHeightBrushElevation();
                 let mode = getHeightBrushMode();
-
-                // let min = -5; // document.getElementById('tools-detail-height-min').value;
-                // let max = 5; // document.getElementById('tools-detail-height-max').value;
-                // if (min) options.min = min;
-                // if (max) options.max = max;
 
                 let options = {
                     selection: tile,
@@ -1019,6 +1031,13 @@ const TOOL_DEFINITIONS = {
 function loadSelectedAlpha() {
     let a = document.getElementById('tools-detail-color-alpha').value;
     return parseInt(a) / 100;
+}
+
+function setSelectedColor(color) {
+    document.getElementById('tools-detail-color-r').value = color.r;
+    document.getElementById('tools-detail-color-g').value = color.g;
+    document.getElementById('tools-detail-color-b').value = color.b;
+    updateColorSwatch();
 }
 
 function loadSelectedColor() {

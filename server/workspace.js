@@ -454,6 +454,9 @@ function readModels(workspace) {
     }
     let models = {};
     dir.traverseSubdirectory([], [], exports.getModelDefinitionPath(workspace), (k,v,meta) => {
+        if (v.dollar) {
+            k = '$' + k;
+        }
         models[k] = processModel(k,v,meta);
     });
 

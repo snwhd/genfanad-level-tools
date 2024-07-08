@@ -807,6 +807,18 @@ function colorPencil(workspace, body) {
     return true;
 }
 
+function colorPick(workspace, body) {
+    let mesh = WORKSPACE.readMesh(workspace);
+
+    let center_x = body.selection.x;
+    let center_y = body.selection.y;
+
+    let color = mesh[center_x][center_y].color;
+
+    WORKSPACE.writeMesh(workspace, mesh);
+    return color;
+}
+
 exports.init = (app) => {
     app.get('/clear/:workspace', (req, res) => {
         res.send(clearMesh(req.params.workspace));
@@ -867,6 +879,9 @@ exports.init = (app) => {
     });
     app.post('/color/pencil/:workspace', (req, res) => {
         res.send(colorPencil(req.params.workspace, req.body));
+    });
+    app.post('/color/pick/:workspace', (req, res) => {
+        res.send(colorPick(req.params.workspace, req.body));
     });
 
     app.post('/height/save/:workspace', (req, res) => {
