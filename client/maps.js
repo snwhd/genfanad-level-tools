@@ -20,10 +20,8 @@ class Workspace {
 
         this.items = {};
         this.npcs = {};
-        this.seeds = {};
         this.npc_group = new THREE.Group();
         this.item_group = new THREE.Group();
-        this.seed_group = new THREE.Group();
     }
 }
 
@@ -123,7 +121,6 @@ class MapLoader {
         pending.push(get(`/api/workspaces/json/${name}/unique`, (m) => { map.unique = m; }));
         pending.push(get(`/api/workspaces/json/${name}/npcs`, (m) => { map.npcs = m; }));
         pending.push(get(`/api/workspaces/json/${name}/items`, (m) => { map.items = m; }));
-        pending.push(get(`/api/workspaces/json/${name}/seeds`, (m) => { map.seeds = m; }));
         //pending.push(get(`/workspaces/${name}/buildings/floors/definitions.json`, (m) => {map.floors = m;}));
         Promise.allSettled(pending).then( () => {
             if (!map.models) map.models = {};
@@ -136,7 +133,6 @@ class MapLoader {
             if (!map.unique) map.unique = {};
             if (!map.npcs) map.npcs = {};
             if (!map.items) map.items = {};
-            if (!map.seeds) map.seeds = {};
 
             let texture_root = WORKSPACES.attached ? '/global/' : `/workspaces/${name}/`;
             let textures = new TextureManager(texture_root);
@@ -224,7 +220,6 @@ class MapLoader {
 
             workspace.items = map.items;
             workspace.npcs = map.npcs;
-            workspace.seeds = map.seeds;
 
             for (let k in map.items) {
                 try {
@@ -238,26 +233,6 @@ class MapLoader {
                     workspace.item_group.add(cube);
                 } catch (e) {
                     console.log("invalid item: ", k, e);
-                }
-            }
-
-            for (let k in map.seeds) {
-                try {
-                    let ii = map.seeds[k];
-
-                    let difficulty = Number.parseInt(ii.difficulty);
-                    let r = difficulty > 500 ? 1 : 1.0 - (500 - difficulty) / 500.0;
-                    let g = difficulty < 500 ? 1 : 1.0 - (difficulty - 500) / 500.0;
-
-                    let cube = createCube(new THREE.Color( r, g, 0 ));
-                    setPosition(cube, mesh.terrain, ii.location.x, ii.location.y, 0.3, 0.3, 0.3);
-                    cube.rotation.set(THREE.Math.degToRad(45), 0, THREE.Math.degToRad(45));
-                    
-                    cube.seed_info = Object.assign({key: k}, ii);
-
-                    workspace.seed_group.add(cube);
-                } catch (e) {
-                    console.log("invalid seed: ", k, e);
                 }
             }
 

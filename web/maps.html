@@ -55,6 +55,8 @@
                     <input id='hotkey-toggle' type='button' value='Disable Hotkeys' onclick='toggleHotkeys()' />
                     <input id='reload-toggle' type='button' value='Disable Live Reload' onclick='toggleReload()' />
                     |
+                    <input type='button' value='Model Editor' class="button-single" onclick='TOOLS.pickTool("default", "model_editor", this)'>
+                    |
                     <input id='file-reload' type='button' value='Reload' onclick='WORKSPACES.reload(true)' />
                     Selected tool: <span id='tool-selected'>None</span>
                 </div>
@@ -136,14 +138,13 @@
                             </li>
                             <li id='layer-npc'>NPC Spawns</li>
                             <li id='layer-item' checked>Item Spawns</li>
-                            <li id='layer-seed'>Seed Spawns</li>
                             <li id='layer-water'>Water</li>
                             <li id='layer-music'>Music</li>
                             <li id='layer-location'>Location</li>
                         </ul>
                     </div>
                     <div id='tools-choice' data-options="region:'center', split:true" style="height:40%">
-                        <div style="display: flex; margin: 5px 0;">
+                        <div style="display: none; margin: 5px 0;">
                             <span style="margin-right: 5px;">Camera:</span>
                             <div>
                                 <div>
@@ -156,8 +157,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div>
-                            <input type='button' value='Model Editor' class="button-single" onclick='TOOLS.pickTool("default", "model_editor", this)'>
+                        <div style="display:none">
                             <input type='button' value='Hotkeys' class="button-single" onclick='TOOLS.pickTool("default", "hotkeys", this)'>
                         </div>
                         <div class="easyui-accordion">
@@ -174,17 +174,26 @@
                                     <input type='button' value='Load From' class="button-click" onclick='TOOLS.pickTool("editor", "load-clipboard", this)'>
                                 </div>
                             </div>
-                            <div title="Mesh">
+                            <div title="Paint">
                                 <div>
-                                    <input type='button' value='Save Color' class="button-click" onclick='TOOLS.pickTool("color", "save", this)'>
-                                    <input type='button' value='Load Color' class="button-click" onclick='TOOLS.pickTool("color", "load", this)'>
+                                    <input type='button' value='Pencil' class="button-click" onclick='TOOLS.pickTool("color", "pencil", this)'>
+                                    <input type='button' value='Brush' class="button-click" onclick='TOOLS.pickTool("color", "brush", this)'>
                                 </div>
                                 <div>
-                                    <input type='button' value='Load/Save Heightmap' class="button-group inactive" onclick='TOOLS.pickTool("height", "image", this)' />
+                                    <input type='button' value='Save' class="button-click" onclick='TOOLS.pickTool("color", "save", this)'>
+                                    <input type='button' value='Load' class="button-click" onclick='TOOLS.pickTool("color", "load", this)'>
+                                </div>
+                            </div>
+                            <div title="Elevation">
+                                <div>
+                                    <input type='button' value='Load/Save' class="button-group inactive" onclick='TOOLS.pickTool("height", "image", this)' />
                                 </div>
                                 <div>
-                                    <input type='button' value='Elevation Brush' class="button-group inactive" onclick='TOOLS.pickTool("height", "brush", this)'>
-                                    <input type='button' value='Elevation Pencil' class="button-group inactive" onclick='TOOLS.pickTool("height", "pencil", this)'>
+                                    <input type='button' value='Brush' class="button-group inactive" onclick='TOOLS.pickTool("height", "brush", this)'>
+                                    <input type='button' value='Pencil' class="button-group inactive" onclick='TOOLS.pickTool("height", "pencil", this)'>
+                                </div>
+                                <div>
+                                    <input type='button' value='Flatten Area' class="button-group inactive" onclick='TOOLS.pickTool("building", "flatten-area", this)'>
                                 </div>
                                 <div>
                                     <input type='button' value='Save Collision Mask' class="button-click" onclick='TOOLS.pickTool("collision_mask", "save", this)'>
@@ -192,14 +201,10 @@
                                     <input type='button' value='Toggle Collision' class="button-group inactive" onclick='TOOLS.pickTool("collision_mask", "toggle", this)'>
                                 </div>
                                 <div>
-                                    <input type='button' value='Flatten Area' class="button-group inactive" onclick='TOOLS.pickTool("building", "flatten-area", this)'>
-                                </div>
-                                <div>
                                     <input type='button' value='Clear Mesh' style='color:red;' class="button-click" onclick='TOOLS.pickTool("mesh", "clear", this)'>
                                 </div>
                             </div> 
-                            <div title="Weirder Mesh">
-                                <p>Less commonly needed mesh editing tools.</p>
+                            <div title="Mesh Etc.">
                                 <div>
                                     <input type='button' value='Save Render Mask' class="button-click" onclick='TOOLS.pickTool("render_mask", "save", this)'>
                                     <input type='button' value='Load Render Mask' class="button-click" onclick='TOOLS.pickTool("render_mask", "load", this)'>
@@ -279,20 +284,6 @@
                                     <input type='button' value='Batch Edit' class="button-group inactive" onclick='TOOLS.pickTool("scenery", "batch", this)'>
                                 </div>
                             </div>
-                            <div title="NPCs/Items/Seeds">
-                                <div>
-                                    <input id='tools-npc-select-button' disabled type='button' value='Select NPC' class="button-group inactive" onclick='TOOLS.pickTool("npc", "select", this)'>
-                                    <input id='tools-npc-place-button' disabled type='button' value='Place New NPC' class="button-group inactive" onclick='TOOLS.pickTool("npc", "place", this)'>
-                                </div>
-                                <div>
-                                    <input id='tools-item-select-button' type='button' value='Select Item' class="button-group inactive" onclick='TOOLS.pickTool("item", "select", this)'>
-                                    <input type='button' value='Place New Item' class="button-group inactive" onclick='TOOLS.pickTool("item", "place", this)'>
-                                </div>
-                                <div>
-                                    <input id='tools-seed-select-button' type='button' value='Select Seed' class="button-group inactive" onclick='TOOLS.pickTool("seed", "select", this)'>
-                                    <input type='button' value='Place New Seed' class="button-group inactive" onclick='TOOLS.pickTool("seed", "place", this)'>
-                                </div>
-                            </div>
                         </div>
                     </div>
                     <div id='tools-detail' data-options="region:'south', split:true" style="height:40%">
@@ -322,12 +313,38 @@
                                 </p>
                             </div>
                         </div>
-                        <div id='tools-detail-height' class='hidden'>
-                            <div>
-                                Edits height directly. 
-
-                                Set min and max to clamp (empty = unset) the brush to a specific elevation value. 
+                        <div id='tools-detail-color' class='hidden'>
+                            <div style="padding: 1em; display:flex; flex-direction:column; align-items: center; row-gap: 0.5em;">
+                                <div style="border: 1px solid black; width: 2em; height: 2em; margin-bottom: 1em;" id='tools-detail-color-swatch'></div>
+                                <div>
+                                    r: <input oninput="updateColorSwatch()" type='number' id='tools-detail-color-r' value='0' min="0" max="255"/>
+                                </div>
+                                <div>
+                                    g: <input oninput="updateColorSwatch()" type='number' id='tools-detail-color-g' value='0' min="0" max="255"/>
+                                </div>
+                                <div>
+                                    b: <input oninput="updateColorSwatch()" type='number' id='tools-detail-color-b' value='0' min="0" max="255"/>
+                                </div>
                             </div>
+                        </div>
+                        <div id='tools-detail-color_brush', class='hidden'>
+                            <div style="padding: 1em; display:flex; flex-direction:column; align-items: center; row-gap: 0.5em;">
+                                <div style="display:flex;align-items:center;column-gap:0.5em;border:1px solid grey;padding:0.5em;min-width:80%;justify-content:center">
+                                    <span>size</span> <input type='range' id='tools-detail-color-size' value='1' min="1" max="25" oninput="updateColorBrush();"/>
+                                    <span style="min-width:3em;" id="tools-detail-color-size-label">3</span>
+                                </div>
+                                <div style="display:flex;align-items:center;column-gap:0.5em;border:1px solid grey;padding:0.5em;min-width:80%;justify-content:center;">
+                                    <span>alpha</span>
+                                    <input type='range' id='tools-detail-color-alpha' value='100' min="0" max="100" oninput="updateColorBrushAlpha();"/>
+                                    <span style="min-width:4em;" id="tools-detail-color-alpha-label">1.0</span>
+                                </div>
+                                <div style="display:flex; flex-direction:row;">
+                                    <input checked type='radio' name='colorblend' value='solid'/> solid
+                                    <input type='radio' name='colorblend' value='blend'/> blend
+                                </div>
+                            </div>
+                        </div>
+                        <div id='tools-detail-height' class='hidden'>
                             <div>
                                 Brush Size: 
                                 <input type='number' id='tools-detail-height-size' value='1' min="1" max="25"/>
@@ -511,11 +528,6 @@
                             <input type="button" value="Open in Editor" onclick="editSelectedItem()" />
                             <input type="button" style='color: red' value="Delete" onclick="deleteSelectedItem()" />
                         </div>
-                        <div id='tools-detail-seed-selected' class='hidden'>
-                            <div id='tools-detail-seed-selected-text'></div>
-                            <input type="button" value="Open in Editor" onclick="editSelectedSeed()" />
-                            <input type="button" style='color: red' value="Delete" onclick="deleteSelectedSeed()" />
-                        </div>
                         <div id='tools-detail-npc-place' class='hidden'>
                             <p>NPC ID: <input type="text" id='tools-detail-npc-place-list' list="npc-list"></select></p>
                             <p>Wander: <select id='tools-detail-npc-place-wander'>
@@ -528,11 +540,6 @@
                             <p>Item ID: <input type="text" id='tools-detail-item-place-list' list="item-list"></select></p>
                             <p>Respawn Time: <input id='tools-detail-item-place-spawn_rate' type='number' value='4000'></p>
                             <p>Count: <input id='tools-detail-item-place-count' type='number' value=1></p>
-                        </div>
-                        <div id='tools-detail-seed-place' class='hidden'>
-                            <p>Permanent: <input type='checkbox' id='tools-detail-seed-place-permanent' checked /></p>
-                            <p>Hidden: <input type='checkbox' id='tools-detail-seed-place-hidden' /></p>
-                            <p>Difficulty: <input id='tools-detail-seed-place-difficulty' type='number' value='50' /> (0-100 easy, 100-500 medium, 500-1000 hard)</p>
                         </div>
                         <div id='tools-detail-location-place' class='hidden'>
                             <p>Location ID: <input id='tools-detail-location-place-id' type='number' value='0' /> (Read the location.json file in workspace)</p>

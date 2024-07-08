@@ -54,28 +54,6 @@ function deleteNPC(workspace, key) {
   return true;
 }
 
-function editSeed(workspace, key) {
-  openFile(workspace, "seeds/" + key + ".json");
-}
-
-function deleteSeed(workspace, key) {
-  let seeds = WORKSPACE.readSeeds(workspace);
-
-  undo.commandPerformed(workspace, {
-    command: "Delete Seed",
-    files: { '/seeds.json': seeds },
-  })
-
-  if (!key) {
-    console.log("Object does not exist.");
-    return false;
-  }
-  delete seeds[key];
-
-  WORKSPACE.writeSeeds(workspace, seeds);
-  return true;
-}
-
 exports.init = (app) => {
   app.post('/item-edit/:workspace', (req, res) => {
     res.send(editItem(req.params.workspace, req.body.key));
@@ -90,13 +68,5 @@ exports.init = (app) => {
   app.post('/npc-delete/:workspace', (req, res) => {
     res.send(deleteNPC(req.params.workspace, req.body.key));
   });
-
-  app.post('/seed-edit/:workspace', (req, res) => {
-    res.send(editSeed(req.params.workspace, req.body.key));
-  });
-  app.post('/seed-delete/:workspace', (req, res) => {
-    res.send(deleteSeed(req.params.workspace, req.body.key));
-  });
-
   return app;
 }

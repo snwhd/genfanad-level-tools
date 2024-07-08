@@ -28,11 +28,13 @@ $(document).ready( () => {
     TEXTURE_SELECTION.init();
     MODEL_VISUAL.init();
 
+    updateColorSwatch();
+
     if (urlParams.get('show_reparent')) {
         document.getElementById('reparent-section').style.display = 'block';
     }
 
-    window.onbeforeunload = () => "Are you sure you want to navigate away?";
+    // window.onbeforeunload = () => "Are you sure you want to navigate away?";
 
     document.addEventListener('keydown', event => {
         if (!HOTKEYS_ENABLED) return;
@@ -74,51 +76,51 @@ $(document).ready( () => {
         }
     });
 
-    document.addEventListener('copy', event => {
-        if (!HOTKEYS_ENABLED) return;
+    // document.addEventListener('copy', event => {
+    //     if (!HOTKEYS_ENABLED) return;
 
-        let element = document.activeElement;
-        if (element.tagName == 'SELECT') return;
-        if (element.tagName == 'INPUT') {
-            let type = element.getAttribute('type');
-            if (type != 'button') return;
-        }
+    //     let element = document.activeElement;
+    //     if (element.tagName == 'SELECT') return;
+    //     if (element.tagName == 'INPUT') {
+    //         let type = element.getAttribute('type');
+    //         if (type != 'button') return;
+    //     }
 
-        TOOLS.keyPress({
-            ctrlKey: true,
-            key: 'c'
-        });
-    })
-    document.addEventListener('cut', event => {
-        if (!HOTKEYS_ENABLED) return;
-        
-        let element = document.activeElement;
-        if (element.tagName == 'SELECT') return;
-        if (element.tagName == 'INPUT') {
-            let type = element.getAttribute('type');
-            if (type != 'button') return;
-        }
+    //     TOOLS.keyPress({
+    //         ctrlKey: true,
+    //         key: 'c'
+    //     });
+    // })
+    // document.addEventListener('cut', event => {
+    //     if (!HOTKEYS_ENABLED) return;
+    //
+    //     let element = document.activeElement;
+    //     if (element.tagName == 'SELECT') return;
+    //     if (element.tagName == 'INPUT') {
+    //         let type = element.getAttribute('type');
+    //         if (type != 'button') return;
+    //     }
 
-        TOOLS.keyPress({
-            ctrlKey: true,
-            key: 'x'
-        });
-    })
-    document.addEventListener('paste', event => {
-        if (!HOTKEYS_ENABLED) return;
+    //     TOOLS.keyPress({
+    //         ctrlKey: true,
+    //         key: 'x'
+    //     });
+    // })
+    // document.addEventListener('paste', event => {
+    //     if (!HOTKEYS_ENABLED) return;
 
-        let element = document.activeElement;
-        if (element.tagName == 'SELECT') return;
-        if (element.tagName == 'INPUT') {
-            let type = element.getAttribute('type');
-            if (type != 'button') return;
-        }
+    //     let element = document.activeElement;
+    //     if (element.tagName == 'SELECT') return;
+    //     if (element.tagName == 'INPUT') {
+    //         let type = element.getAttribute('type');
+    //         if (type != 'button') return;
+    //     }
 
-        TOOLS.keyPress({
-            ctrlKey: true,
-            key: 'v'
-        });
-    })
+    //     TOOLS.keyPress({
+    //         ctrlKey: true,
+    //         key: 'v'
+    //     });
+    // })
 })
 
 function toggleHotkeys() {

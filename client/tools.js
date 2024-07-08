@@ -237,6 +237,55 @@ const TOOL_DEFINITIONS = {
                 });
             }
         },
+        'pencil': {
+            'tool-config': {
+                'tools-detail-color': true,
+            },
+            name: 'Color Pencil',
+            select: 'tile',
+            on_select: (tile) => {
+                let options = {
+                    selection: tile,
+                    color: loadSelectedColor(),
+                    alpha: loadSelectedAlpha(),
+                }
+
+                console.log(options);
+
+                post('api/tools/mesh/color/pencil/' + WORKSPACES.opened, options, () => {
+                    WORKSPACES.reload();
+                });
+            }
+        },
+        'brush': {
+            'tool-config': {
+                'tools-detail-color': true,
+                'tools-detail-color_brush': true,
+            },
+            name: 'Color Brush',
+            select: 'fixed-area',
+            // hotkey: 'shift-H',
+            init: () => {
+                updateColorBrush();
+            },
+            on_select: (tile) => {
+                let size = getColorBrushSize();
+
+                let options = {
+                    selection: tile,
+                    size: Number(size),
+                    color: loadSelectedColor(),
+                    alpha: loadSelectedAlpha(),
+                    blend: document.querySelector('input[name="colorblend"]:checked').value,
+                }
+
+                console.log(JSON.stringify(options));
+
+                post('api/tools/mesh/color/brush/' + WORKSPACES.opened, options, () => {
+                    WORKSPACES.reload();
+                });
+            }
+        },
     },
     'blend_mask': {
         'save': {
@@ -960,50 +1009,49 @@ const TOOL_DEFINITIONS = {
             }
         },
     },
-    'seed': {
-        'select': {
-            'tool-config': {
-                'tools-detail-seed-selected': true,
-            },
-            name: 'Seed - Select',
-            select: 'seed',
-            on_select: (seed, cursor) => {
-                if (!seed) {
-                    MISC_EDITOR.deselect();
-                } else {
-                    MISC_EDITOR.select('seed', seed.key);
-                    let html = `<p>${JSON.stringify(seed)}</p>`
-                    document.getElementById('tools-detail-seed-selected-text').innerHTML = html;
-                }
-            },
-            dispose: () => SELECTION.removeSceneryCursor()
-        },
-        'place': {
-            'tool-config': {
-                'tools-detail-seed-place': true,
-            },
-            name: 'Place Seed',
-            select: 'tile',
-            on_select: (tile) => {
-                let is_toggled = document.getElementById('tools-detail-seed-place-permanent').checked ? true : false;
-                let is_hidden = document.getElementById('tools-detail-seed-place-hidden').checked ? true : false;
+}
 
-                let def = {
-                    layer: WORKSPACES.attached_args.layer,
-                    is_toggled: is_toggled,
-                    is_hidden: is_hidden,
-                    difficulty: Number.parseInt(document.getElementById('tools-detail-seed-place-difficulty').value)
-                };
+function loadSelectedAlpha() {
+    let a = document.getElementById('tools-detail-color-alpha').value;
+    return parseInt(a) / 100;
+}
 
-                def.gx = tile.x + WORKSPACES.attached_args.x * 128;
-                def.gy = tile.y + WORKSPACES.attached_args.y * 128;
+function loadSelectedColor() {
+    let r = document.getElementById('tools-detail-color-r').value;
+    let g = document.getElementById('tools-detail-color-g').value;
+    let b = document.getElementById('tools-detail-color-b').value;
+    function hex(v) {
+        var x = parseInt(v)
+        if (!x) x = 0;
+        x = x.toString(16);
+        return x.length == 1 ? "0" + x : x;
+    }
+    return "#" + hex(r) + hex(g) + hex(b);
+}
 
-                post('http://localhost:7780/api/cli/place_seed.js', def, (r) => {
-                    WORKSPACES.reloadMesh();
-                });
-            }
-        },
-    },
+function updateColorSwatch() {
+    let color = loadSelectedColor();
+    document.getElementById('tools-detail-color-swatch').style.backgroundColor = color;
+}
+
+function getColorBrushSize() {
+    let s = document.getElementById('tools-detail-color-size').value;
+    return s * 2 + 1;
+}
+
+function updateColorBrush() {
+    if (TOOLS.selected.name != 'Color Brush') return;
+
+    let s = getColorBrushSize();
+    document.getElementById('tools-detail-color-size-label').innerText = s;
+    SELECTION.cursor.setDimensions(s-2, s-2, true);
+}
+
+function updateColorBrushAlpha() {
+    if (TOOLS.selected.name != 'Color Brush') return;
+
+    let a = loadSelectedAlpha();
+    document.getElementById('tools-detail-color-alpha-label').innerText = a;
 }
 
 function batchAction(action) {
@@ -1119,23 +1167,6 @@ function editSelectedNPC() {
     });
 }
 
-function deleteSelectedSeed() {
-    if (MISC_EDITOR.type != 'seed') return;
-    post('api/tools/misc/seed-delete/' + WORKSPACES.opened,{
-        key: MISC_EDITOR.key
-    }, () => {
-        WORKSPACES.reload();
-    });
-}
-
-function editSelectedSeed() {
-    if (MISC_EDITOR.type != 'seed') return;
-    post('api/tools/misc/seed-edit/' + WORKSPACES.opened,{
-        key: MISC_EDITOR.key
-    }, () => {
-    });
-}
-
 class Tools {
     constructor() {
         this.selected = undefined;
@@ -1246,8 +1277,6 @@ class Tools {
             SELECTION.setNPCMode(toolDefinition.on_select);
         } else if (toolDefinition.select === 'item') {
             SELECTION.setItemMode(toolDefinition.on_select);
-        } else if (toolDefinition.select === 'seed') {
-            SELECTION.setSeedMode(toolDefinition.on_select);
         }
 
         if (toolDefinition.init) toolDefinition.init();

@@ -666,6 +666,94 @@ function heightPencil(workspace, body) {
     return true;
 }
 
+function colorBrush(workspace, body) {
+    // // {"selection":{"type":"fixed-area","x":68,"y":69,"elevation":20.3137},"size":"1","step":"0.5"}
+
+    let mesh = WORKSPACE.readMesh(workspace);
+    undo.commandPerformed(workspace,{
+        command: "Color Brush",
+        files: {'/mesh.json': mesh},
+    })
+
+    // Generate the brush
+    /*let center = body.size / 2.0;
+    let radius = Math.round(body.size / 2.0);
+    let brush = [];
+    for (let i = 0; i < body.size; i++) {
+        let row = [];
+        for (let j = 0; j < body.size; j++) {
+            let percent = 1.0 - Math.sqrt((center - i) * (center - i) + (center - j) * (center - j)) / radius;
+            let max = Math.max(0,percent);
+            row.push(max.toFixed(2));
+        }
+        brush.push(row);
+    }*/
+
+    let center_x = body.selection.x;
+    let center_y = body.selection.y;
+
+    let r = parseInt(body.color.substr(1, 2), 16);
+    let g = parseInt(body.color.substr(3, 2), 16);
+    let b = parseInt(body.color.substr(5, 2), 16);
+    let alpha = parseFloat(body.alpha);
+
+    function lerp(a, b, t) {
+        return a + (b - a)*(t*alpha);
+    }
+
+    let n = Math.floor(body.size / 2.0);
+    let n2 = n**2;
+    for (let xd = 0; xd < body.size; xd++)
+    for (let yd = 0; yd < body.size; yd++) {
+        let x = center_x + xd - n;
+        let y = center_y + yd - n;
+        if (!mesh[x] || !mesh[x][y]) continue;
+
+        let dist = (((x - center_x)**2) + ((y - center_y)**2)) / n2;
+        if (dist > 1.0) {
+            dist = 1.0;
+        }
+        let t = 1.0 - dist;
+
+        switch (body.blend) {
+            case "solid":
+                mesh[x][y].color.r = lerp(mesh[x][y].color.r, r, 1.0);
+                mesh[x][y].color.g = lerp(mesh[x][y].color.g, g, 1.0);
+                mesh[x][y].color.b = lerp(mesh[x][y].color.b, b, 1.0);
+                break;
+            case "blend":
+                mesh[x][y].color.r = lerp(mesh[x][y].color.r, r, t);
+                mesh[x][y].color.g = lerp(mesh[x][y].color.g, g, t);
+                mesh[x][y].color.b = lerp(mesh[x][y].color.b, b, t);
+                break;
+        }
+    }
+
+    WORKSPACE.writeMesh(workspace, mesh);
+    return true;
+}
+
+function colorPencil(workspace, body) {
+    let mesh = WORKSPACE.readMesh(workspace);
+    undo.commandPerformed(workspace,{
+        command: "Color Pencil",
+        files: {'/mesh.json': mesh},
+    })
+
+    let center_x = body.selection.x;
+    let center_y = body.selection.y;
+
+    let r = parseInt(body.color.substr(1, 2), 16);
+    let g = parseInt(body.color.substr(3, 2), 16);
+    let b = parseInt(body.color.substr(5, 2), 16);
+    mesh[center_x][center_y].color.r = r;
+    mesh[center_x][center_y].color.g = g;
+    mesh[center_x][center_y].color.b = b;
+
+    WORKSPACE.writeMesh(workspace, mesh);
+    return true;
+}
+
 exports.init = (app) => {
     app.get('/clear/:workspace', (req, res) => {
         res.send(clearMesh(req.params.workspace));
@@ -720,6 +808,13 @@ exports.init = (app) => {
     app.post('/collision_mask/toggle/:workspace', (req, res) => {
         res.send(toggleCollisionMask(req.params.workspace, req.body));
     })
+
+    app.post('/color/brush/:workspace', (req, res) => {
+        res.send(colorBrush(req.params.workspace, req.body));
+    });
+    app.post('/color/pencil/:workspace', (req, res) => {
+        res.send(colorPencil(req.params.workspace, req.body));
+    });
 
     app.post('/height/save/:workspace', (req, res) => {
         res.send(writeHeight(req.params.workspace, req.body));

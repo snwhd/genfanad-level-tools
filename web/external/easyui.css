@@ -327,7 +327,7 @@
   margin: 2px 0 0 0;
 }
 .accordion {
-  overflow: hidden;
+  overflow: scroll;
   border-width: 1px;
   border-style: solid;
 }
@@ -337,6 +337,10 @@
 }
 .accordion .accordion-body {
   border-width: 0 0 1px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 0.5em;
+  padding: 0.5em;
 }
 .accordion-noborder {
   border-width: 0;
