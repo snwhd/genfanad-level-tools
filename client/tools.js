@@ -776,6 +776,32 @@ const TOOL_DEFINITIONS = {
                 });
             }
         },*/
+        'shadow-tile': {
+            name: 'Shadow - Tile',
+            select: 'tile',
+            // hotkey: 'shift-R',
+            on_select: (tile) => {
+                post('api/tools/buildings/draw-shadow/' + WORKSPACES.opened,{
+                    selection: tile,
+                    clear: true,
+                }, () => {
+                    WORKSPACES.reloadMesh();
+                });
+            }
+        },
+        'shadow-area': {
+            name: 'Shadow - Area',
+            select: 'area',
+            // hotkey: 'alt-R',
+            on_select: (tile) => {
+                post('api/tools/buildings/draw-shadow/' + WORKSPACES.opened,{
+                    selection: tile,
+                    clear: true,
+                }, () => {
+                    WORKSPACES.reloadMesh();
+                });
+            }
+        },
         'roof-area': {
             'tool-config': {
                 'tools-detail-buildings': true,
@@ -906,6 +932,25 @@ const TOOL_DEFINITIONS = {
                 SCENERY_EDITOR.placeUnique(tile);
             }
         },
+
+        'delete-tile': {
+            name: 'Delete Scenery',
+            select: 'tile',
+            // hotkey: 'P',
+            on_select: (tile) => {
+                SCENERY_EDITOR.clearTile(tile);
+            }
+        },
+        'delete-area': {
+            'tool-config': {},
+            name: 'Clear Area of Scenery',
+            select: 'area',
+            // hotkey: 'shift-Q',
+            on_select: (tile) => {
+                SCENERY_EDITOR.clearArea(tile);
+            }
+        },
+
         'batch': {
             'tool-config': {
                 'tools-detail-scenery-batch': true,

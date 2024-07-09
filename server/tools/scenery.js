@@ -353,10 +353,11 @@ function deleteUnique(workspace, body) {
         files: {'/unique.json': uniques},
     })
 
-    if (!uniques[id]) throw "Invalid unique: " + id;
-    delete uniques[id];
-
-    WORKSPACE.writeUnique(workspace, uniques);
+    // if (!uniques[id]) throw "Invalid unique: " + id;
+    if (uniques[id]) {
+        delete uniques[id];
+        WORKSPACE.writeUnique(workspace, uniques);
+    }
 }
 
 function saveModelPreview(workspace, body) {

@@ -60,7 +60,42 @@ def pack_workspace(w, output):
 
 
 def pack_attached(root, assets, output):
-    raise NotImplementedError();
+    mapsdir = os.path.join(root, "maps")
+    layers = os.listdir(mapsdir)
+    for layer in layers:
+        layerdir = os.path.join(mapsdir, layer)
+        chunks = os.listdir(layerdir)
+        for chunk in chunks:
+            chunkdir = os.path.join(layerdir, chunk)
+
+            mesh = json.load(open(os.path.join(chunkdir, "new_mesh", "mesh.json")))
+
+            objects = {}
+            objsdir = os.path.join(chunkdir, "objects")
+            for category in os.listdir(objsdir):
+                # TODO: batched
+                for filename in os.listdir(os.path.join(objsdir, category)):
+                    if filename.endswith(".json"):
+                        data = json.load(open(os.path.join(objsdir, category, filename)))
+                        key = f'{layer}:{data["gx"]},{data["gy"]}'
+                        objects[key] = data
+
+            unique = {}
+            uniquesdir = os.path.join(chunkdir, "unique")
+            for filename in os.listdir(uniquesdir):
+                if filename.endswith(".json"):
+                    filepath = os.path.join(uniquesdir, filename)
+                    data = json.load(open(filepath))
+                    pos = data["position"]
+                    key = f'{pos["x"]},{pos["z"]}-{data["scenery_key"]}'
+                    unique[key] = data
+
+            combined = combine(mesh, objects, unique)
+
+            x, y = chunk.split('_')
+            filename = f'{layer}_{x}_{y}.combined.json'
+            output_path = os.path.join(output, filename)
+            json.dump(combined, open(output_path, "w"), indent=2)
 
 
 def unpack_attached(filepath, output):

@@ -203,7 +203,6 @@ function drawWall(workspace, body) {
             body.selection.to.x, body.selection.to.y);
     } else if (body.selection.type == 'area') {
         let s = body.selection;
-        console.log(s);
         drawWallSegment(mesh, body.level, body.type,
             s.minx, s.miny, s.minx, s.maxy);
         drawWallSegment(mesh, body.level, body.type,
@@ -250,6 +249,20 @@ function drawRoof(workspace, body) {
         }
     })
 
+    WORKSPACE.writeMesh(workspace, mesh);
+}
+
+function drawShadow(workspace, body) {
+    let metadata = WORKSPACE.getMetadata(workspace);
+    let mesh = WORKSPACE.readMesh(workspace);
+    let clear = body.clear;
+    forEachTile(metadata, mesh, body.selection, (x,y,tile) => {
+        if (body.clear) {
+            delete tile.shadow;
+        } else {
+            tile.shadow = true;
+        }
+    })
     WORKSPACE.writeMesh(workspace, mesh);
 }
 
@@ -371,6 +384,9 @@ exports.init = (app) => {
     })
     app.post('/draw-roof/:workspace', (req, res) => {
         res.send(drawRoof(req.params.workspace, req.body));
+    })
+    app.post('/draw-shadow/:workspace', (req, res) => {
+        res.send(drawShadow(req.params.workspace, req.body));
     })
     app.post('/clear-area/:workspace', (req, res) => {
         res.send(clearArea(req.params.workspace, req.body));

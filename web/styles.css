@@ -1,6 +1,11 @@
+html {
+    font-family: sans-serif;
+}
+
 .active {
-    background-color: green;
+    background-color: green !important;
     color: white;
+    font-weight: bold;
 }
 
 .inactive {
@@ -10,3 +15,24 @@
     background-color: red;
     color: white;
 }
+
+.button-click, .button-group {
+    background-color: white;
+    border: 1px solid gray;
+    border-radius: 0.2em;
+    padding: 0.25em;
+    margin-right: 0.25em;
+    margin-top: 0.5em;
+}
+
+#tools-choice {
+    text-align: center;
+}
+
+#buildings-table {
+    display: inline-block;
+    .button-group {
+        min-width: 4em;
+    }
+}
+

@@ -255,6 +255,44 @@ class SceneryEditor {
         }
     }
 
+    clearTile(tile) {
+        let x = tile.x;
+        let y = tile.y;
+
+        let uniques = [x + ',' + y];
+        let sceneries = [x + ',' + y];
+
+        for (const scenery of sceneries) {
+            post('api/tools/scenery/instance/delete/' + WORKSPACES.opened, {
+                id: scenery
+            }, () => {
+                this.removeObject(scenery);
+            });
+        }
+
+        for (const unique of uniques) {
+            post('api/tools/scenery/unique/delete/' + WORKSPACES.opened, {
+                id: unique
+            }, () => {
+                this.removeUnique(unique);
+            });
+        }
+    }
+
+    clearArea(tile) {
+        for (let x = tile.minx; x < tile.maxx; x++) {
+            for (let y = tile.miny; y < tile.maxy; y++) {
+                let name = x + ',' + y;
+                if (
+                    WORKSPACES.current_map.scenery_groups['unique'].getObjectByName(name) ||
+                    WORKSPACES.current_map.scenery_groups['trees'].getObjectByName(name)
+                ) {
+                    this.clearTile({x: x, y: y});
+                }
+            }
+        }
+    }
+
     copyModel() {
         document.getElementById('tools-detail-scenery-model-list').value = 
             document.getElementById('tools-detail-scenery-model').innerText;
