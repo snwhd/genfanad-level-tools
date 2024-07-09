@@ -59,7 +59,7 @@ def pack_workspace(w, output):
     json.dump(combined, open(output, "w"), indent=2)
 
 
-def pack_attached(root, assets, output):
+def pack_attached(root, output):
     mapsdir = os.path.join(root, "maps")
     layers = os.listdir(mapsdir)
     for layer in layers:
@@ -73,12 +73,19 @@ def pack_attached(root, assets, output):
             objects = {}
             objsdir = os.path.join(chunkdir, "objects")
             for category in os.listdir(objsdir):
-                # TODO: batched
                 for filename in os.listdir(os.path.join(objsdir, category)):
                     if filename.endswith(".json"):
                         data = json.load(open(os.path.join(objsdir, category, filename)))
                         key = f'{layer}:{data["gx"]},{data["gy"]}'
                         objects[key] = data
+
+            batchdir = os.path.join(chunkdir, "batch_objects")
+            for batchfile in os.listdir(batchdir):
+                if not batchfile.endswith(".json"):
+                    continue
+                data = json.load(open(os.path.join(batchdir, batchfile)))
+                for k, v in data.items():
+                    objects[k] = v
 
             unique = {}
             uniquesdir = os.path.join(chunkdir, "unique")
@@ -140,8 +147,8 @@ def parse_args():
 
     p = subparsers.add_parser("pack")
     p.add_argument("workspace", type=str)
-    p.add_argument("--assets", type=str, default=None)
-    p.add_argument("--output", type=str, required=False, default="combined.json")
+    p.add_argument("--temporary", action='store_true')
+    p.add_argument("--output", type=str, default=".")
     p.set_defaults(func=cmd_pack)
 
     p = subparsers.add_parser("unpack")
@@ -157,10 +164,10 @@ def parse_args():
 
 
 def cmd_pack(args):
-    if args.assets is None:
+    if args.temporary:
         pack_workspace(args.workspace, args.output)
     else:
-        pack_attached(args.workspace, args.assets, args.output)
+        pack_attached(args.workspace, args.output)
 
 
 def cmd_unpack(args):
