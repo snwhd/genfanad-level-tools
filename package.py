@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import pathlib
+import zipfile
 import json
 import os
 
@@ -103,9 +104,16 @@ def pack_attached(root, output):
             combined = combine(mesh, objects, unique)
 
             x, y = chunk.split('_')
-            filename = f'{layer}_{x}_{y}.combined.json'
-            output_path = os.path.join(output, filename)
-            json.dump(combined, open(output_path, "w"), indent=2)
+            outdir = pathlib.Path(output) / layer
+            outdir.mkdir(parents=True, exist_ok=True)
+
+            outfile = outdir / f'{x}_{y}.zip'
+            with zipfile.ZipFile(str(outfile), "w") as zf:
+                zf.writestr("combined.json", json.dumps(combined, indent=2))
+
+            # filename = f'{layer}_{x}_{y}.combined.json'
+            # output_path = os.path.join(output, filename)
+            # json.dump(combined, open(output_path, "w"), indent=2)
 
 
 def unpack_attached(filepath, output):
