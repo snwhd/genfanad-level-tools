@@ -72,30 +72,33 @@ def pack_attached(root, output):
 
             objects = {}
             objsdir = os.path.join(chunkdir, "objects")
-            for category in os.listdir(objsdir):
-                for filename in os.listdir(os.path.join(objsdir, category)):
-                    if filename.endswith(".json"):
-                        data = json.load(open(os.path.join(objsdir, category, filename)))
-                        key = f'{layer}:{data["gx"]},{data["gy"]}'
-                        objects[key] = data
+            if os.path.exists(objsdir):
+                for category in os.listdir(objsdir):
+                    for filename in os.listdir(os.path.join(objsdir, category)):
+                        if filename.endswith(".json"):
+                            data = json.load(open(os.path.join(objsdir, category, filename)))
+                            key = f'{layer}:{data["gx"]},{data["gy"]}'
+                            objects[key] = data
 
             batchdir = os.path.join(chunkdir, "batch_objects")
-            for batchfile in os.listdir(batchdir):
-                if not batchfile.endswith(".json"):
-                    continue
-                data = json.load(open(os.path.join(batchdir, batchfile)))
-                for k, v in data.items():
-                    objects[k] = v
+            if os.path.exists(batchdir):
+                for batchfile in os.listdir(batchdir):
+                    if not batchfile.endswith(".json"):
+                        continue
+                    data = json.load(open(os.path.join(batchdir, batchfile)))
+                    for k, v in data.items():
+                        objects[k] = v
 
             unique = {}
             uniquesdir = os.path.join(chunkdir, "unique")
-            for filename in os.listdir(uniquesdir):
-                if filename.endswith(".json"):
-                    filepath = os.path.join(uniquesdir, filename)
-                    data = json.load(open(filepath))
-                    pos = data["position"]
-                    key = f'{pos["x"]},{pos["z"]}-{data["scenery_key"]}'
-                    unique[key] = data
+            if os.path.exists(uniquesdir):
+                for filename in os.listdir(uniquesdir):
+                    if filename.endswith(".json"):
+                        filepath = os.path.join(uniquesdir, filename)
+                        data = json.load(open(filepath))
+                        pos = data["position"]
+                        key = f'{pos["x"]},{pos["z"]}-{data["scenery_key"]}'
+                        unique[key] = data
 
             combined = combine(mesh, objects, unique)
 
