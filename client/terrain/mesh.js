@@ -563,6 +563,8 @@ class MeshLoader {
                                 protoface = [tile, tiles[x+1][y+1], 'light'] ;
                             } else if (w.position == 'diagb' && x < this.metadata.wSIZE && y < this.metadata.wSIZE) {
                                 protoface = [tiles[x+1][y], tiles[x][y+1], 'dark'] ;
+                            } else {
+                                continue;
                             }
 
                             if (w.invert) {

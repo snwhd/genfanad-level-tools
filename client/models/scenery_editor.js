@@ -258,23 +258,25 @@ class SceneryEditor {
     clearTile(tile) {
         let x = tile.x;
         let y = tile.y;
-
-        let uniques = [x + ',' + y];
-        let sceneries = [x + ',' + y];
-
-        for (const scenery of sceneries) {
-            post('api/tools/scenery/instance/delete/' + WORKSPACES.opened, {
-                id: scenery
-            }, () => {
-                this.removeObject(scenery);
-            });
+        if (WORKSPACES.attached_args) {
+            x += WORKSPACES.attached_args.x * 128;
+            y += WORKSPACES.attached_args.y * 128;
         }
 
-        for (const unique of uniques) {
+        let name = x + ',' + y;
+
+        if (WORKSPACES.current_map.scenery_groups['unique'].getObjectByName(name)) {
             post('api/tools/scenery/unique/delete/' + WORKSPACES.opened, {
-                id: unique
+                id: name
             }, () => {
-                this.removeUnique(unique);
+                this.removeUnique(name);
+            });
+        }
+        if (WORKSPACES.current_map.scenery_groups['trees'].getObjectByName(name)) {
+            post('api/tools/scenery/instance/delete/' + WORKSPACES.opened, {
+                id: name
+            }, () => {
+                this.removeObject(name);
             });
         }
     }
@@ -282,13 +284,7 @@ class SceneryEditor {
     clearArea(tile) {
         for (let x = tile.minx; x < tile.maxx; x++) {
             for (let y = tile.miny; y < tile.maxy; y++) {
-                let name = x + ',' + y;
-                if (
-                    WORKSPACES.current_map.scenery_groups['unique'].getObjectByName(name) ||
-                    WORKSPACES.current_map.scenery_groups['trees'].getObjectByName(name)
-                ) {
-                    this.clearTile({x: x, y: y});
-                }
+                this.clearTile({x: x, y: y});
             }
         }
     }
