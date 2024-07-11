@@ -5,7 +5,7 @@ import json
 import shutil
 import os
 
-ROOT_DIR = '../GenfanadClient/resources/app/static-files/'
+ROOT_DIR = '../old/GenfanadClient/resources/app/static-files/'
 MODELS_JSON = os.path.join(ROOT_DIR, 'models.json')
 MODELS_DIR = os.path.join(ROOT_DIR, 'models')
 
@@ -31,24 +31,16 @@ def copy_model(name, data):
     os.makedirs(directory, exist_ok=True)
     filename = parts[-1]
 
-    defn = {}
-    if 'name' in data:
-        defn['name'] = data['name']
-    defn['examine'] = data['examine']
-    if 'type' in data:
-        defn['type'] = data['type']
-    if 'dimensions' in data:
-        defn['dimensions'] = data['dimensions']
-    if 'scale' in data:
-        defn['scale'] = data['scale']
-    if 'offset' in data:
-        defn['offset'] = data['offset']
-    if 'sharedTexture' in data:
-        defn['sharedTexture'] = data['sharedTexture']
-        defn['texture'] = 'shared-textures/' + data['sharedTexture']
+    defn = dict(data)
+    texture_to_copy = None
+    if 'texture' in defn:
         # TODO: check if sharedTexture != texture
-    defn['impl'] = {'todo':'todo'}
-    # TODO: missing: nick, shadow, texture
+        value = defn['texture']
+        if value.startswith('imported/'):
+            defn['texture'] = value.split('/', 1)[1]
+            texture_to_copy = os.path.join(MODELS_DIR, value);
+    elif 'sharedTexture' in defn:
+        defn['texture'] = 'shared-textures/' + data['sharedTexture']
 
     if dollar:
         defn['dollar'] = True
@@ -65,6 +57,11 @@ def copy_model(name, data):
 
     # os.symlink(source_model, modelpath)
     shutil.copy2(source_model, modelpath)
+
+    if texture_to_copy is not None:
+        texture_dest = os.path.join(directory, defn['texture'])
+        if not os.path.exists(texture_dest):
+            shutil.copy2(texture_to_copy, texture_dest)
 
     defn_path = os.path.join(directory, filename) + '.json'
     json.dump(defn, open(defn_path, 'w'), indent=2)
@@ -88,7 +85,7 @@ if __name__ == '__main__':
     parser.add_argument('--output', required=False, default='models')
     args = parser.parse_args()
 
-    OURDIR = args.output
+    OUTDIR = args.output
     DEFNS_DIR = os.path.join(OUTDIR, 'definitions')
 
     main()

@@ -60,9 +60,44 @@ def pack_workspace(w, output):
     json.dump(combined, open(output, "w"), indent=2)
 
 
+def pack_attached_private(root, output):
+    root = pathlib.Path(root)
+    output_data = {
+        "npcs": {},
+    }
+
+    mapsdir = root / "maps"
+    for layerdir in mapsdir.glob("*"):
+        if not layerdir.is_dir():
+            continue
+
+        layer = layerdir.name
+
+        for chunkdir in layerdir.glob("*"):
+            # NPCs
+            npcs = chunkdir / "npcs"
+            if not npcs.exists() or not npcs.is_dir():
+                continue
+
+            chunk = chunkdir.name
+
+            for filename in npcs.glob("*.json"):
+                data = json.load(filename.open())
+                if layer not in output_data["npcs"]:
+                    output_data["npcs"][layer] = {}
+                if chunk not in output_data["npcs"][layer]:
+                    output_data["npcs"][layer][chunk] = {}
+                data = json.load(filename.open())
+                output_data["npcs"][layer][chunk][filename.stem] = data
+
+    outfile = pathlib.Path(output) / "private_data.json"
+    json.dump(output_data, outfile.open("w"), indent=2)
+
+
 def pack_attached(root, output):
     mapsdir = os.path.join(root, "maps")
     layers = os.listdir(mapsdir)
+
     for layer in layers:
         layerdir = os.path.join(mapsdir, layer)
         chunks = os.listdir(layerdir)
@@ -158,7 +193,8 @@ def parse_args():
 
     p = subparsers.add_parser("pack")
     p.add_argument("workspace", type=str)
-    p.add_argument("--temporary", action='store_true')
+    p.add_argument("--temporary", action="store_true")
+    p.add_argument("--private", action="store_true")
     p.add_argument("--output", type=str, default=".")
     p.set_defaults(func=cmd_pack)
 
@@ -178,7 +214,10 @@ def cmd_pack(args):
     if args.temporary:
         pack_workspace(args.workspace, args.output)
     else:
-        pack_attached(args.workspace, args.output)
+        if args.private:
+            pack_attached_private(args.workspace, args.output)
+        else:
+            pack_attached(args.workspace, args.output)
 
 
 def cmd_unpack(args):

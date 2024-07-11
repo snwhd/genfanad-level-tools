@@ -311,6 +311,13 @@
                                     <input type='button' value='Batch Edit' class="button-group inactive" onclick='TOOLS.pickTool("scenery", "batch", this)'>
                                 </div>
                             </div>
+                            <div title="NPC">
+                                <div>
+                                    <input type='button' value='Select' class="button-click" onclick='TOOLS.pickTool("npc", "select", this)'>
+                                    <input type='button' value='Place' class="button-click" onclick='TOOLS.pickTool("npc", "place", this)'>
+                                    <input type='button' value='Place Spawn' class="button-click" onclick='TOOLS.pickTool("npc", "placeSpawn", this)'>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div id='tools-detail' data-options="region:'south', split:true" style="height:40%">
@@ -584,7 +591,8 @@
                             <input type="button" style='color: red' value="Delete" onclick="deleteSelectedItem()" />
                         </div>
                         <div id='tools-detail-npc-place' class='hidden'>
-                            <p>NPC ID: <input type="text" id='tools-detail-npc-place-list' list="npc-list"></select></p>
+                            <p>Group ID: <input type="text" id="tools-detail-npc-group-name"></p>
+                            <p>NPC Type: <input type="text" id='tools-detail-npc-place-list' list="npc-list"></p>
                             <p>Wander: <select id='tools-detail-npc-place-wander'>
                                 <option value='circle'>Circle</option>
                                 <option value='rect'>Rectangle</option>

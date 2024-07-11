@@ -33,7 +33,8 @@ function deleteItem(workspace, key) {
 }
 
 function editNPC(workspace, key) {
-  openFile(workspace, "npcs/" + key + ".json");
+  // openFile(workspace, "npcs/" + key + ".json");
+  console.log("TODO: editNPC");
 }
 
 function deleteNPC(workspace, key) {

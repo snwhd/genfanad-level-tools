@@ -9,6 +9,7 @@ var buildings = require('./tools/buildings.js');
 var scenery = require('./tools/scenery.js');
 var batch_scenery = require('./tools/batch-scenery.js');
 var misc = require('./tools/misc.js');
+var npc = require('./tools/npc.js');
 
 exports.init = (app) => {
     app.use('/undo', undo.init(express.Router()));
@@ -18,5 +19,6 @@ exports.init = (app) => {
     app.use('/scenery', scenery.init(express.Router()));
     app.use('/batch-scenery', batch_scenery.init(express.Router()));
     app.use('/misc', misc.init(express.Router()));
+    app.use('/npc', npc.init(express.Router()));
     return app;
 }

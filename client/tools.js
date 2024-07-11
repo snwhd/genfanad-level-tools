@@ -1039,11 +1039,13 @@ const TOOL_DEFINITIONS = {
             name: 'Place NPC',
             select: 'area',
             on_select: (area) => {
+                let key = document.getElementById('tools-detail-npc-group-name').value;
                 let npc = document.getElementById('tools-detail-npc-place-list').value;
                 let type = document.getElementById('tools-detail-npc-place-wander').value;
                 let count = document.getElementById('tools-detail-npc-place-count').value;
 
                 let def = {
+                    key: key,
                     npc: npc,
                     layer: WORKSPACES.attached_args.layer,
                     wander: type,
@@ -1065,11 +1067,33 @@ const TOOL_DEFINITIONS = {
                 def.gx += WORKSPACES.attached_args.x * 128;
                 def.gy += WORKSPACES.attached_args.y * 128;
 
-                post('http://localhost:7780/api/cli/place_npc.js', def, (r) => {
+                post('api/tools/npc/place/' + WORKSPACES.opened, def, () => {
                     WORKSPACES.reloadMesh();
                 });
             }
         },
+      'placeSpawn': {
+        'tools-config': {
+          'tools-detail-npc-selected': true,
+        },
+        'name': 'Place Spawn',
+        'select': 'tile',
+        on_select: (area) => {
+          let key = MISC_EDITOR.key;
+          if (!key) {
+            return;
+          }
+
+          let body = {
+            "key": key,
+            "gx": WORKSPACES.attached_args.x * 128 + area.x,
+            "gy": WORKSPACES.attached_args.y * 128 + area.y,
+          };
+          post('api/tools/npc/placeSpawn/' + WORKSPACES.opened, body, () => {
+            WORKSPACES.reloadMesh();
+          });
+        }
+      }
     },
 }
 
