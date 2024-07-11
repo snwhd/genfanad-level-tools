@@ -25,10 +25,12 @@ def preprocess_mesh(mesh):
     for row in mesh:
         for tile in row:
             if "walkable" not in tile:
-                tile["walkable"] = tile.get("walkabilityOverriden", True)
-                tile["overall_walkable"] = tile["walkable"] # TODO what is this
+                tile["walkable"] = True
+                tile["overall_walkable"] = True
             if "walkabilityOverriden" in tile:
                 del tile["walkabilityOverriden"]
+                tile["walkable"] = False
+                tile["overall_walkable"] = False
             if "minimapColor" not in tile and "color" in tile:
                 tile["minimapColor"] = tile["color"]
             if "buildings" in tile and "level1" in tile["buildings"] and "roof" in tile["buildings"]["level1"]:
