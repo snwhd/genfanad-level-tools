@@ -1,3 +1,5 @@
+const CONTROLS_Y = 5;
+
 class Scene {
     constructor() {
 
@@ -31,7 +33,7 @@ class Scene {
         this.scene = scene;
         this.camera = camera;
         this.renderer = renderer;
-        this.controls = this.createControls(camera, renderer, 64, 20, 64);
+        this.controls = this.createControls(camera, renderer, 64, CONTROLS_Y, 64);
 
         addSprite(scene, 'n.png', 64, 20, -20);
         addSprite(scene, 's.png', 64, 20, 148);
@@ -177,7 +179,7 @@ class Scene {
         }
 
         cameraLookAt(this.camera, 132,77,132, 0,1,0, 64,32,64);
-        this.controls = this.createControls(this.camera, this.renderer, 64, 20, 64);
+        this.controls = this.createControls(this.camera, this.renderer, 64, CONTROLS_Y, 64);
     }
 
     centerCameraOn(location, distance = 15) {

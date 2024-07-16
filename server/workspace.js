@@ -238,7 +238,7 @@ exports.readObjects = (workspace) => {
                     }
                 }
             }
-        
+
             return objects;
         }
 
@@ -448,7 +448,6 @@ function processModel(k,v,meta) {
 function readModels(workspace) {
     if (MODE == 'attached' && enable_model_cache) {
         if (fs.existsSync(attached_root + '/tmp/cached_models.json')) {
-            console.log("Using cached models.");
             return JSON.parse(fs.readFileSync(attached_root + '/tmp/cached_models.json'));
         }
     }

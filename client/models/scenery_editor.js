@@ -245,7 +245,11 @@ class SceneryEditor {
 
         if (object.object == 'delete') {
             post('api/tools/scenery/instance/delete/' + WORKSPACES.opened, object, () => {
-                this.removeObject(object.x + ',' + object.y);
+                // TODO: why is this different than clearTile
+                let gx = object.x; // + WORKSPACES.attached_args.x * 128;
+                let gy = object.y; // + WORKSPACES.attached_args.y * 128;
+                let name = gx + ',' + gy;
+                this.removeObject(name);
             });
         } else {
             if (MODEL_VISUAL) MODEL_VISUAL.updateRecent(object.object);
@@ -256,27 +260,35 @@ class SceneryEditor {
     }
 
     clearTile(tile) {
+        // TODO: fix. there is a general mismatch between server and client ids
+        // server uses local and client uses global coords.
+
         let x = tile.x;
         let y = tile.y;
+        let gx = x;
+        let gy = y;
         if (WORKSPACES.attached_args) {
-            x += WORKSPACES.attached_args.x * 128;
-            y += WORKSPACES.attached_args.y * 128;
+            gx += WORKSPACES.attached_args.x * 128;
+            gy += WORKSPACES.attached_args.y * 128;
+        } else {
+            console.log("idk what to do here");
         }
-
         let name = x + ',' + y;
+        let gname = gx + ',' + gy;
 
-        if (WORKSPACES.current_map.scenery_groups['unique'].getObjectByName(name)) {
+        if (WORKSPACES.current_map.scenery_groups['unique'].getObjectByName(gname)) {
             post('api/tools/scenery/unique/delete/' + WORKSPACES.opened, {
                 id: name
             }, () => {
-                this.removeUnique(name);
+                this.removeUnique(gname);
             });
         }
-        if (WORKSPACES.current_map.scenery_groups['trees'].getObjectByName(name)) {
+        console.log(WORKSPACES.current_map.scenery_groups['trees']);
+        if (WORKSPACES.current_map.scenery_groups['trees'].getObjectByName(gname)) {
             post('api/tools/scenery/instance/delete/' + WORKSPACES.opened, {
                 id: name
             }, () => {
-                this.removeObject(name);
+                this.removeObject(gname);
             });
         }
     }
@@ -440,6 +452,7 @@ class SceneryEditor {
     removeObject(objectName){
         let group = WORKSPACES.current_map.scenery_groups['trees'];
         let objectToRemove = group.getObjectByName(objectName);
+        window.TEST_GROUP = group;
 
         if (objectToRemove){
             group.remove(objectToRemove);

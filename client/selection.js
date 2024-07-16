@@ -211,10 +211,12 @@ class Selection {
             }
 
             if (this.mode === 'area' || this.mode === 'line') {
+                let y = this.terrain.heightAt(position.x, position.z);
+
                 if (!this.cursor.active || !this.cursor.origin) {
                     this.cursor.setOrigin({
                         x: Math.round(position.x),
-                        y: this.terrain.heightAt(position.x, position.z),
+                        y: y,
                         z: Math.round(position.z)
                     });
                 } else {
@@ -502,8 +504,13 @@ class Area {
 
     setOrigin(origin) {
         this.origin = origin;
-        const low = origin.y - 1.6;
-        const high = origin.y + 1.6;
+        const heightLevel = document.getElementById('tools-detail-buildings-level').value;
+        const offset = heightLevel * 1.6;
+
+        const low = origin.y + offset;
+        const high = origin.y + 1.6 + offset;
+
+        this.origin.y += offset;
 
         this.selected.from = {x: this.origin.x, y: this.origin.z};
 
@@ -598,8 +605,12 @@ class Line {
 
     setOrigin(origin) {
         this.origin = origin;
-        this.low = origin.y - 1.6;
-        this.high = origin.y + 1.6;
+
+        const heightLevel = document.getElementById('tools-detail-buildings-level').value;
+        const offset = heightLevel * 1.6;
+
+        this.low = origin.y - 1.6 + offset;
+        this.high = origin.y + 1.6 + offset;
 
         this.selected.from = {x: this.origin.x, y: this.origin.z};
 

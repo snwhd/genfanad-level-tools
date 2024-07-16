@@ -153,6 +153,7 @@ function deleteModel(workspace, body) {
         console.log("Object does not exist.");
         return false;
     }
+
     delete objects[id];
 
     WORKSPACE.writeObjects(workspace, objects);

@@ -35,6 +35,18 @@ def preprocess_mesh(mesh):
                 tile["minimapColor"] = tile["color"]
             if "buildings" in tile and "level1" in tile["buildings"] and "roof" in tile["buildings"]["level1"]:
                 tile["indoor"] = True
+
+    # TODO: fixme
+    # the 129th column is not actually rendered, but it does result in an
+    # edge between bodies of water spanning chunks, unless we tell it there
+    # is water on the other side. Shouldn't affect other situations.
+    for tile in mesh[128]:
+        tile['texture1'] = 'water.png'
+        tile['texture2'] = 'water.png'
+    for col in mesh:
+        col[128]['texture1'] = 'water.png'
+        col[128]['texture2'] = 'water.png'
+
     return mesh
 
 

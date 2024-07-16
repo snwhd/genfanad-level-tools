@@ -22,10 +22,14 @@ body {
   ---height: 142px;
   width: 10%;
   margin-bottom: 1em;
+  padding: 0.25em;
+  cursor: pointer;
 }
 
 .model-preview-label {
   font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 #file-workspaces-view {

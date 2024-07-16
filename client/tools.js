@@ -325,6 +325,30 @@ const TOOL_DEFINITIONS = {
                 });
             }
         },
+        'brush': {
+            'tool-config': {
+                'tools-detail-blend-brush': true,
+            },
+            name: 'Blend Brush',
+            select: 'fixed-area',
+            init: () => {
+                updateBlendBrush();
+            },
+            on_select: (tile) => {
+                let size = getBlendBrushSize();
+                let mode = document.querySelector('input[name="blend_brush_mode"]:checked').value;
+
+                let options = {
+                    selection: tile,
+                    size: Number(size),
+                    blend: mode == "on",
+                }
+
+                post('api/tools/mesh/blend/brush/' + WORKSPACES.opened, options, () => {
+                    WORKSPACES.reload();
+                });
+            }
+        },
     },
     'overhang': {
         'toggle': {
@@ -1129,7 +1153,7 @@ function updateColorSwatch() {
 
 function getColorBrushSize() {
     let s = document.getElementById('tools-detail-color-size').value;
-    return s * 2 + 1;
+    return (s-1) * 2 + 1;
 }
 
 function updateColorBrush() {
@@ -1137,7 +1161,7 @@ function updateColorBrush() {
 
     let s = getColorBrushSize();
     document.getElementById('tools-detail-color-size-label').innerText = s;
-    SELECTION.cursor.setDimensions(s-2, s-2, true);
+    SELECTION.cursor.setDimensions(s, s, true);
 }
 
 function updateColorBrushAlpha() {
@@ -1145,6 +1169,19 @@ function updateColorBrushAlpha() {
 
     let a = loadSelectedAlpha();
     document.getElementById('tools-detail-color-alpha-label').innerText = a;
+}
+
+function getBlendBrushSize() {
+    let s = document.getElementById('tools-detail-blend-brush-size').value;
+    return (s-1) * 2 + 1;
+}
+
+function updateBlendBrush() {
+    if (TOOLS.selected.name != 'Blend Brush') return;
+
+    let s = getBlendBrushSize();
+    document.getElementById('tools-detail-blend-brush-size-label').innerText = s;
+    SELECTION.cursor.setDimensions(s, s, true);
 }
 
 function batchAction(action) {
@@ -1205,12 +1242,17 @@ function updateHeightBrushBlend() {
 
 function getHeightBrushElevation() {
     let s = document.getElementById('tools-detail-height-elevation').value;
-    return parseInt(s);
+    return parseFloat(s);
 }
 
 function updateHeightBrushElevation() {
     let b = getHeightBrushElevation();
     document.getElementById('tools-detail-height-elevation-label').innerText = b;
+}
+
+function overrideHeightBrushElevation(f) {
+  document.getElementById('tools-detail-height-elevation').value = f;
+  updateHeightBrushElevation();
 }
 
 function clearOption(id) {

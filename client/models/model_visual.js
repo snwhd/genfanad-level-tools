@@ -5,15 +5,27 @@
 const RECENT_MODELS = 15;
 
 function onModelFilterChanged(e) {
-    let term = document.getElementById('model-select-filter').value.toLowerCase();
+    let query = document.getElementById('model-select-filter').value.toLowerCase();
+    let terms = query.split(" ").filter(function (t) { return t !== "" });
+
+    let toDisplay = [];
+    let toHide = [];
+    
     let container = document.getElementById('model-visual-all');
     for (prv of container.getElementsByClassName('model-preview')) {
         for (div of prv.getElementsByClassName('model-preview-label')) {
-            if (term == "") {
+            // prv.style.display = "block";
+            let matched = true;
+            for (term of terms) {
+                if (!div.innerText.toLowerCase().includes(term)) {
+                    matched = false;
+                    break;
+                }
+            }
+
+            if (matched && prv.style.display != "block") {
                 prv.style.display = "block";
-            } else if (div.innerText.toLowerCase().includes(term)) {
-                prv.style.display = "block";
-            } else {
+            } else if (!matched && prv.style.display != "none") {
                 prv.style.display = "none";
             }
         }
@@ -147,9 +159,10 @@ class VisualModelSelection {
     }
 
     createImageDiv(i) {
-        let label = document.createElement('div');
+        let label = document.createElement('p');
         label.classList.add('model-preview-label');
         label.innerText = i;
+        label.title = i;
         let img = document.createElement('img');
         this.imagePreview(i, img);
 

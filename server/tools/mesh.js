@@ -19,7 +19,9 @@ const COLORS = require('../unique_colors.js').COLORS;
 function forEachTile2(mesh, selection, f) {
     for (let x = selection.minx; x < selection.maxx; x++)
     for (let y = selection.miny; y < selection.maxy; y++) {
-        f(x,y,mesh[x][y]);
+        if (x >= 0 && x < mesh.length && y >= 0 && y < mesh[x].length) {
+          f(x,y,mesh[x][y]);
+        }
     }
 }
 
@@ -720,27 +722,11 @@ function heightPencil(workspace, body) {
 }
 
 function colorBrush(workspace, body) {
-    // // {"selection":{"type":"fixed-area","x":68,"y":69,"elevation":20.3137},"size":"1","step":"0.5"}
-
     let mesh = WORKSPACE.readMesh(workspace);
     undo.commandPerformed(workspace,{
         command: "Color Brush",
         files: {'/mesh.json': mesh},
     })
-
-    // Generate the brush
-    /*let center = body.size / 2.0;
-    let radius = Math.round(body.size / 2.0);
-    let brush = [];
-    for (let i = 0; i < body.size; i++) {
-        let row = [];
-        for (let j = 0; j < body.size; j++) {
-            let percent = 1.0 - Math.sqrt((center - i) * (center - i) + (center - j) * (center - j)) / radius;
-            let max = Math.max(0,percent);
-            row.push(max.toFixed(2));
-        }
-        brush.push(row);
-    }*/
 
     let center_x = body.selection.x;
     let center_y = body.selection.y;
@@ -755,14 +741,14 @@ function colorBrush(workspace, body) {
     }
 
     let n = Math.floor(body.size / 2.0);
-    let n2 = n**2;
+    let n12 = (n+1)**2;
     for (let xd = 0; xd < body.size; xd++)
     for (let yd = 0; yd < body.size; yd++) {
         let x = center_x + xd - n;
         let y = center_y + yd - n;
         if (!mesh[x] || !mesh[x][y]) continue;
 
-        let dist = (((x - center_x)**2) + ((y - center_y)**2)) / n2;
+        let dist = (((x - center_x)**2) + ((y - center_y)**2)) / n12;
         if (dist > 1.0) {
             dist = 1.0;
         }
@@ -819,6 +805,27 @@ function colorPick(workspace, body) {
     return color;
 }
 
+function blendBrush(workspace, body) {
+    let mesh = WORKSPACE.readMesh(workspace);
+    let mode = body.blend;
+    let center_x = body.selection.x;
+    let center_y = body.selection.y;
+    let n = Math.floor(body.size / 2.0);
+    for (let dx = 0; dx < body.size; dx++)
+    for (let dy = 0; dy < body.size; dy++) {
+        let x = center_x + dx - n;
+        let y = center_y + dy - n;
+        if (!mesh[x] || !mesh[x][y]) continue;
+        if (mode) {
+            mesh[x][y].blend_colors = true;
+        } else {
+            delete mesh[x][y].blend_colors;
+        }
+    }
+    WORKSPACE.writeMesh(workspace, mesh);
+    return true;
+}
+
 exports.init = (app) => {
     app.get('/clear/:workspace', (req, res) => {
         res.send(clearMesh(req.params.workspace));
@@ -873,6 +880,10 @@ exports.init = (app) => {
     app.post('/collision_mask/toggle/:workspace', (req, res) => {
         res.send(toggleCollisionMask(req.params.workspace, req.body));
     })
+
+    app.post('/blend/brush/:workspace', (req, res) => {
+        res.send(blendBrush(req.params.workspace, req.body));
+    });
 
     app.post('/color/brush/:workspace', (req, res) => {
         res.send(colorBrush(req.params.workspace, req.body));
